@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+
+NEW_INSTANCE_KEYFILE=$1
+HOSTNAME=$2
+
+tar -zcv --exclude='vendor' -f puppet.tar.gz *
+scp -i $NEW_INSTANCE_KEYFILE puppet.tar.gz ec2-user@$HOSTNAME:/tmp/puppet.tar.gz
+ssh -i $NEW_INSTANCE_KEYFILE ec2-user@$HOSTNAME <<EOF
+sudo apt-get purge facter* -y
+sudo apt-get autoremove -y
+sudo mkdir -p /opt/puppet
+sudo chown -R puppet: /opt/puppet
+sudo mkdir -p /var/lib/gems/1.9.1
+sudo chmod -R 0755 /var/lib/gems
+sudo chown -R puppet: /var/lib/gems
+sudo chown puppet: /usr/local/bin/
+sudo mv /tmp/puppet.tar.gz /opt/puppet
+sudo tar -zxvf /opt/puppet/puppet.tar.gz -C /opt/puppet/
+sudo chown -R puppet: /opt/puppet
+sudo rm -f /opt/puppet/puppet.tar.gz
+sudo apt-get install ruby1.9.1-dev build-essential git -y
+sudo su puppet -
+cd /opt/puppet
+gem install bundler
+echo "Installing Gems..."
+bundle install --gemfile /opt/puppet/Gemfile
+echo "Installing Puppet module dependencies..."
+bundle exec librarian-puppet install --verbose
+sudo ufw default allow incoming
+echo "Applying Puppet configuration..."
+exit
+sudo -u root puppet apply --hiera_config /opt/puppet/hiera.yaml --modulepath /opt/puppet/modules:/opt/puppet/vendor/modules /opt/puppet/manifests/site.pp --verbose --environment development
+EOF

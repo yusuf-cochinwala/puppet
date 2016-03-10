@@ -1,0 +1,25 @@
+---
+
+classes:
+  - base
+  - puppet::user
+
+localApps:
+  memberApi: http://localhost:9500
+  walletApi: http://localhost:9502
+  causesApi: http://localhost:9003
+
+splunk::main::credentials_file: 'splunkclouduf.spl'
+splunk::main::deployment_server: 'prd-p-5d7cqk45rwdh.cloud.splunk.com:8089'
+splunk::main::forwarder_package: 'splunkforwarder-6.3.3-f44afce176d0-linux-2.6-amd64.deb'
+
+ssh_authorized_keys:
+  'jenkins@build.development.meaningfulplatform.co.uk':
+    user: 'deploy'
+    type: 'ssh-rsa'
+    key:  'AAAAB3NzaC1yc2EAAAADAQABAAACAQC0Zj5HEZwCgXmujhaIXoEgnPVyqnajmE1Ue+V3LRD0c7RqHHBEmwUVlgq0deeunHMPRVFmTQhzrqZ0y1jhnYJtyAk8f7GDkIGNwrPDf/DtiuB4fW7CHahlAxOtnt/9CEIIXGPlsrkxEu5WV6rsSR9IvAbxqMrpwIbDYseqamF35kZcUUpg09FdCDUcUeLjvc//kcrCgOpvwucXVbnmq7HLF/6b08F0z+NmMGD3E4l2I1j4/gE/O1QjStGE/tCZrSuK8iPKo1+ZgkWHDUzWzlMw6HUhMgN/6WJha+6O4nlYFjwQO7aqjVlHWdvVesI+JGM3XHax9W9CX8R028FKOrZNLoUV+V3KiFv9zgBVtBEkC9QZSM0qPRpxg6YofFi5DLrUyYViaHJm6Og4EjTIjMdr7L/Mo0jAYBcgN9gN5agp7CWphtQWSUeHBLbtEkk7DzjQE/m/7VZOD48tmmsvcsjocVYno9pYO8maRYo7Cup/TH0qFZ1Z0YcDYnl1CXLElepMrwSEp/Vij0Wh4bXxQJKcJ63AdryydkBsCFaZA0cLq6kg0GB9FEh5epI92x/u2Eh1G0BCYx7X0kveyQJhocoKp1U/InprJMVGLyyEjEGW947n44lB5duJ9c6enuEHKT3377TbOTvwNevaFkL+8LyGlNwMBrMfLo20CVgo3QH3qw=='
+
+  'jenkins@slave.development.meaningfulplatform.co.uk':
+    user: 'deploy'
+    type: 'ssh-rsa'
+    key:  'AAAAB3NzaC1yc2EAAAADAQABAAACAQDGkYTB9A283dxfhg50WVlX8DpbQmfzWSRDsJNPwJR2v5N0XD2N8vSacNttUya/m6vsEFzgplQsbYdyRY/gQuwqYVTiCwin12p4YpiuJrZOlvHKU7xyeOjqzWSzZbsBffDnhsOAvYYHY0DlD4zVfbczLYxUaC0TuMOznSBaaUo3plrL9vbElapSDHhAZ1QsFzszzCIVeng3Oh515xkCWMX+4AAX/JSNqfBtt6ebiNJCsXeBCmTJdv1dHq5OCW/pRLvKI3wQBQndOzlb5TbbIm0dYc+VqJW74FYe8pOfchKWO8alVc1o5+MqZTaMsbULJZsKivaU35wMj7QwwjIZmZRF0VVoom52KBSpo+faQsvrOwChhJPlal5ZsFtuUsF/zzlrSXaaZaPVkFMRx9rI5lHkCJoVFutYN89pwEkXZ02O3INaMY2U3sGZjSbEAXamVpXYmbfDxNOTYobCC43UcYsfKumKU9MEV2WNQoNZupW0aNHtfE5xezq3o0Z8qCPby2jftkRKq8FYvBPBWFwbPpyUmgYs+Vxy7fPC5Rz3WKeMrfQnTUBlxIB4sWyhRjiE9N39DlWvTF5IuzCR2NcP+pYQQ/kt1prbHiTbAIw1K2gULTj+79CzK0fYrVT2i0qKugPC6o4JFCKvSxnut5sip5AHvL5YNkqDMvYOmAlG2irr0Q=='

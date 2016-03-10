@@ -1,0 +1,7 @@
+---
+
+classes:
+  - jenkinsci::slave
+
+jenkinsci::slave::executors: 3
+jenkinsci::slave::master_ssh_key: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'

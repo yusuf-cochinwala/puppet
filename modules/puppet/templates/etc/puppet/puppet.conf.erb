@@ -1,0 +1,23 @@
+[main]
+logdir = /var/log/puppet
+vardir = /var/lib/puppet
+ssldir = $vardir/ssl
+rundir = /var/run/puppet
+factpath = $vardir/lib/facter
+pluginsync = true
+last_run_dir = $statedir/last_run_summary.yaml { mode = 644 }
+usecacheonfailure = false
+trusted_node_data = true
+certname = <%= @fqdn %>
+dns_alt_names = puppet,puppetmaster,<%= @fqdn %>
+
+[master]
+autosign = $vardir/autosign.conf
+ssl_client_header = SSL_CLIENT_S_DN
+ssl_client_verify_header = SSL_CLIENT_VERIFY
+storeconfigs = true
+storeconfigs_backend = puppetdb
+
+[agent]
+report = false
+configtimeout = 600

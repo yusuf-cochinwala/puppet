@@ -1,0 +1,31 @@
+#!/bin/bash
+set -ex
+
+if [ -z "$RELEASE" ]; then
+  echo "ERROR: Release value not set."
+  exit 1
+fi
+
+if [ -z "$ENVIRONMENT" ]; then
+  echo "ERROR: Environment value not set."
+  exit 1
+fi
+
+aws s3 cp s3://coop-development-release/jobs/puppet-build/$RELEASE/puppet.tar.gz /tmp/puppet.tar.gz --region=eu-west-1
+sudo mkdir -p /var/lib/puppet
+sudo chown -R ubuntu: /var/lib/puppet
+sudo apt-get install git -y
+mv /tmp/puppet.tar.gz /var/lib/puppet
+tar -zxvf /var/lib/puppet/puppet.tar.gz -C /var/lib/puppet/
+ls -lah /var/lib/puppet
+sudo apt-get install ruby1.9.1 ruby1.9.1-dev build-essential -y
+sudo mkdir -p /var/lib/gems
+sudo chown -R ubuntu: /var/lib/gems
+sudo chown -R ubuntu: /usr/local/bin
+gem install bundler
+cd /var/lib/puppet
+bundle install --gemfile /var/lib/puppet/Gemfile
+bundle exec librarian-puppet install --verbose
+cat /var/lib/puppet/manifests/site.pp
+cat /var/lib/puppet/hiera.yaml
+sudo puppet apply --environment $ENVIRONMENT --hiera_config /var/lib/puppet/hiera.yaml --modulepath /var/lib/puppet/modules:/var/lib/puppet/vendor/modules /var/lib/puppet/manifests/site.pp

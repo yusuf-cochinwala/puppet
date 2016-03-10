@@ -1,0 +1,46 @@
+#!/bin/bash
+set -ex
+
+rm -f /tmp/ip.txt
+if [ -z "$release" ]; then
+  echo "ERROR: Release value not set."
+  exit 1
+fi
+wget -O puppet.tar.gz https://s3-eu-west-1.amazonaws.com/coop-development-release/jobs/puppet-build/$release/puppet.tar.gz
+if [ "$ENV" == "development" ]; then
+  PRIVATE_IPS=10.0.1.68
+else
+  PRIVATE_IPS=$(aws ec2 describe-instances --region eu-west-1 --filters "Name=tag:Environment,Values=$ENV" --query 'Reservations[*].Instances[*].PrivateIpAddress' --output text)
+fi
+touch /tmp/ip.txt
+echo $PRIVATE_IPS
+set -- junk $PRIVATE_IPS
+shift
+for ip in $PRIVATE_IPS; do
+  echo $ip >> /tmp/ip.txt
+  scp -o StrictHostKeyChecking=no -i $EC2USER_KEY puppet.tar.gz ec2-user@$ip:/tmp
+  ssh -o StrictHostKeyChecking=no -i $EC2USER_KEY ec2-user@$ip <<EOF
+sudo mkdir -p /var/lib/puppet
+sudo chown -R ec2-user: /var/lib/puppet
+sudo apt-get install git -y
+mv /tmp/puppet.tar.gz /var/lib/puppet
+tar -zxvf /var/lib/puppet/puppet.tar.gz -C /var/lib/puppet/
+ls -lah /var/lib/puppet
+sudo apt-get install ruby1.9.1 ruby1.9.1-dev build-essential -y
+sudo mkdir -p /var/lib/gems
+sudo chown -R ec2-user: /var/lib/gems
+sudo chown -R ec2-user: /usr/local/bin
+gem install bundler
+bundle exec gem uninstall puppet
+bundle exec gem uninstall facter
+bundle exec gem list
+cd /var/lib/puppet
+bundle install --gemfile /var/lib/puppet/Gemfile
+bundle exec librarian-puppet install --verbose
+echo "Puppet version: " && puppet --version
+echo "Facter version: " && facter --version
+cat /var/lib/puppet/manifests/site.pp
+cat /var/lib/puppet/hiera.yaml
+sudo puppet apply --environment development --hiera_config /var/lib/puppet/hiera.yaml --modulepath /var/lib/puppet/modules:/var/lib/puppet/vendor/modules /var/lib/puppet/manifests/site.pp --debug
+EOF
+done
